@@ -1,0 +1,36 @@
+{
+  "name": "i10n-language-builder",
+  "version": "0.0.1",
+  "description": "Library for generating internationalized language files in multiple locales",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "jshint lib/*.js",
+    "lint:test": "jshint test/*.js",
+    "test:unit": "istanbul cover _mocha test/*.js -- -R spec",
+    "test": "npm run lint && npm run test:unit",
+    "report-coverage": "coveralls < ./coverage/lcov.info"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Brightspace/i10n-language-builder.git"
+  },
+  "keywords": [
+    "i10n",
+    "frau",
+    "language"
+  ],
+  "author": "D2L Corporation",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Brightspace/i10n-language-builder/issues"
+  },
+  "homepage": "https://github.com/Brightspace/i10n-language-builder",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.5",
+    "jshint": "^2.6.0",
+    "mocha": "^2.1.0"
+  }
+}
