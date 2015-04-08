@@ -1,7 +1,7 @@
 {
   "name": "i10n-language-builder",
   "version": "0.0.1",
-  "description": "Library for generating internationalized language files in multiple locales",
+  "description": "Library for generating internationalized language files for multiple regions",
   "main": "lib/index.js",
   "scripts": {
     "lint": "npm run lint:src && npm run lint:test",
@@ -20,6 +20,9 @@
     "frau",
     "language"
   ],
+  "bin": {
+    "i10n-language-builder": "./bin/i10n-language-builder.js"
+  },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "bugs": {
