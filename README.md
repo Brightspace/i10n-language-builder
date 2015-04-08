@@ -16,7 +16,7 @@ Install from NPM:
 npm install i10n-language-builder
 ```
 
-# How It Works
+## How It Works
 
 Now that your application has hit it big, you'd like to translate it into
 multiple languages. JSON seems like a good format to use since it's easy to
@@ -24,7 +24,7 @@ traverse in JavaScript and has good support for nesting and grouping related
 terms together using objects. Also, [Format.js](http://formatjs.io/) and
 [i18next](http://i18next.com/) are pretty cool, as is the [ICU Message Syntax](http://userguide.icu-project.org/formatparse/messages).
 
-## Base Language Files
+### Base Language Files
 
 You'll start with your base language files. These should be named using the two
 character [primary language subtag (ISO 639-1)](http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes). For example: en.json (English), es.json
@@ -42,7 +42,7 @@ Any English speakers using your application from outside the United States will
 quickly point out that "center" is spelled "centre" and "harbor" is actually
 "harbour". To solve this, we need some regional overrides...
 
-## Regional Language Files
+### Regional Language Files
 
 For each language, there might be zero or more regional overrides to handle
 region-specific changes. These files should be prefixed with the
@@ -61,7 +61,7 @@ Sample Canadian English (en-CA.json):
 These region-specific files _only_ need to override the terms that differ from
 the base language.
 
-## Putting it all together
+### Putting it all together
 
 When you point `i10n-language-builder` at a directory containing your base
 and regional language files, it will produce a set of files that contains the
