@@ -4,3 +4,10 @@ node_js:
 sudo: false
 after_success:
 - npm run report-coverage
+deploy:
+  provider: npm
+  email: d2ltravisdeploy@d2l.com
+  api_key:
+    secure: d8Kl6onRwYNBwDKyMcz0rsA8SvUwCTpuELsSI70sf6wD92kKSmpTtiNGW+R3+e6zH7cG45WC8Sa/E0n04f9zm442sqxeA8I4MOXmT/vJQXMRjl/3O/YcB9biGRY8mH/Rn49naVt1LIiDt5MBdxN0AXHeWW3QKYVePBqgVIQKxgQ=
+  on:
+    tags: true
