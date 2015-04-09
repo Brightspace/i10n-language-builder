@@ -4,7 +4,10 @@ var chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	errors = require('../lib/errors'),
 	fs = require('q-io/fs'),
-	Q = require('q');
+	langBuilder = require('../'),
+	Q = require('q'),
+	sinon = require('sinon'),
+	winston = require('winston');
 
 chai.use(chaiAsPromised);
 var expect = chai.expect;
@@ -20,14 +23,14 @@ function removeDir(dir) {
 
 describe('langBuilder', function() {
 
-	var langBuilder;
-
 	beforeEach(function() {
-		process.env.NODE_ENV = 'test';
-		langBuilder = require('../');
+		sinon.stub(winston,'info');
+		sinon.stub(winston,'warn');
 	});
 
 	afterEach(function() {
+		winston.info.restore();
+		winston.warn.restore();
 		return Q.all([removeDir('./test/temp'),removeDir('./test/temp2')]);
 	});
 
@@ -104,23 +107,33 @@ describe('langBuilder', function() {
 	describe('extract', function() {
 
 		it('should lowercase language subtag', function() {
-			var result = langBuilder._extract([{name:'EN-CA'}]);
+			var result = langBuilder._extract(
+				[{name:'en'},{name:'EN-CA'}],
+				'en'
+			);
 			expect(result.regions[0]).to.have.property('language','en');
 		});
 
 		it('should uppercase region subtag', function() {
-			var result = langBuilder._extract([{name:'en-ca'}]);
+			var result = langBuilder._extract(
+				[{name:'en'},{name:'en-ca'}],
+				'en'
+			);
 			expect(result.regions[0]).to.have.property('region','CA');
 		});
 
 		it('should have reference to file content', function() {
-			var result = langBuilder._extract([{name:'en-CA',content:{A:'b'}}]);
+			var result = langBuilder._extract(
+				[{name:'en'},{name:'en-CA',content:{A:'b'}}],
+				'en'
+			);
 			expect(result.regions[0].content).to.eql({A:'b'});
 		});
 
 		it('should populate languages with base language content', function() {
 			var result = langBuilder._extract(
-				[{name:'en',content:1},{name:'fr',content:2},{name:'es',content:3}]
+				[{name:'en',content:1},{name:'fr',content:2},{name:'es',content:3}],
+				'en'
 			);
 			expect(result.languages).to.have.property('en',1);
 			expect(result.languages).to.have.property('fr',2);
@@ -129,7 +142,8 @@ describe('langBuilder', function() {
 
 		it('should populate regions', function() {
 			var result = langBuilder._extract(
-				[{name:'en-CA',content:1},{name:'en-GB',content:2}]
+				[{name:'en'},{name:'en-CA',content:1},{name:'en-GB',content:2}],
+				'en'
 			);
 			expect(result.regions).to.have.length(2);
 			expect(result.regions[0]).to.have.property('language','en');
@@ -140,56 +154,119 @@ describe('langBuilder', function() {
 			expect(result.regions[1]).to.have.property('content',2);
 		});
 
-	});
-
-	describe('merge', function() {
-
-		it('should throw if key not present in base language', function() {
-			var expectedError = errors.missingBaseLanguageKey('A', 'en', 'US');
+		it('should throw if fallback language is missing', function() {
+			var expectedError = errors.missingFallback('en');
 			expect(function() {
-				langBuilder._merge({}, {A:'b'}, 'en', 'US', '');
+				langBuilder._extract([{name:'en-CA'}], 'en');
 			}).to.throw(expectedError);
 		});
 
-		it('should throw if data type mismatch', function() {
-			var expectedError = errors.typeMismatch('A', 'en', 'US');
+	});
+
+	describe('mergeLang', function() {
+
+		it('should throw if key not present in fallback language', function() {
+			var expectedError = errors.missingBaseLanguageKey('A', 'en', 'fr');
 			expect(function() {
-				langBuilder._merge({A:'b'}, {A:{}}, 'en', 'US', '');
+				langBuilder._mergeLang({}, {A:'b'}, 'en', 'fr', '');
+			}).to.throw(expectedError);
+		});
+
+		it('should warn if key not present in base language', function() {
+			var expectedWarning = errors.missingOverrideLanguageKey('A','es','de');
+			var fallback = {A: 'a'};
+			var language = {};
+			langBuilder._mergeLang({A:'a'},{},'es','de','');
+			expect(winston.warn.calledOnce).to.be.true;
+			expect(winston.warn.getCall(0).args[0]).to.equal(expectedWarning);
+			expect(fallback).to.have.property('A','a');
+		});
+
+		it('should throw if data type mismatch', function() {
+			var expectedError = errors.typeMismatch('A', 'it', 'pt');
+			expect(function() {
+				langBuilder._mergeLang({A:'b'}, {A:{}}, 'it', 'pt', '');
 			}).to.throw(expectedError);
 		});
 
 		it('should throw if value is not a string or object', function() {
 			var expectedError = errors.invalidDataType('A', 'en');
 			expect(function() {
-				langBuilder._merge({A:1}, {A:2}, 'en', 'US', '');
+				langBuilder._mergeLang({A:1}, {A:2}, 'en', 'US', '');
+			}).to.throw(expectedError);
+		});
+
+		it('should override fallback with base language', function() {
+			var fallback = {A:'a'};
+			var language = {A:'a-override'};
+			langBuilder._mergeLang(fallback, language, 'gr', 'tu', '');
+			expect(fallback).to.have.property('A', 'a-override');
+		});
+
+		it('should override nested values', function() {
+			var fallback = {A:{AA:'aa'}};
+			var language = {A:{AA:'aa-override'}};
+			langBuilder._mergeLang(fallback, language, 'qe', 'ct', '');
+			expect(fallback).to.eql({A:{AA:'aa-override'}});
+		});
+
+		it('should not override with empty objects', function() {
+			var fallback = {A:{AA:'aa'}};
+			var language = {A:{}};
+			langBuilder._mergeLang(fallback, language, 'na', 'ma', '');
+			expect(fallback).to.eql({A:{AA:'aa'}});
+		});
+
+	});
+
+	describe('mergeRegion', function() {
+
+		it('should throw if key not present in base language', function() {
+			var expectedError = errors.missingBaseLanguageKey('A', 'en', 'US');
+			expect(function() {
+				langBuilder._mergeRegion({}, {A:'b'}, 'en', 'US', '');
+			}).to.throw(expectedError);
+		});
+
+		it('should throw if data type mismatch', function() {
+			var expectedError = errors.typeMismatch('A', 'en', 'US');
+			expect(function() {
+				langBuilder._mergeRegion({A:'b'}, {A:{}}, 'en', 'US', '');
+			}).to.throw(expectedError);
+		});
+
+		it('should throw if value is not a string or object', function() {
+			var expectedError = errors.invalidDataType('A', 'en');
+			expect(function() {
+				langBuilder._mergeRegion({A:1}, {A:2}, 'en', 'US', '');
 			}).to.throw(expectedError);
 		});
 
 		it('should keep base language if no region override', function() {
 			var base = {A:'a'};
 			var region = {};
-			langBuilder._merge(base, region, 'en', 'US', '');
+			langBuilder._mergeRegion(base, region, 'en', 'US', '');
 			expect(base).to.have.property('A', 'a');
 		});
 
 		it('should override base language with region', function() {
 			var base = {A:'a'};
 			var region = {A:'a-override'};
-			langBuilder._merge(base, region, 'en', 'US', '');
+			langBuilder._mergeRegion(base, region, 'en', 'US', '');
 			expect(base).to.have.property('A', 'a-override');
 		});
 
 		it('should override nested values', function() {
 			var base = {A:'a',B:{BA:'ba',BB:'bb'}};
 			var region = {B:{BB:'bb-override'}};
-			langBuilder._merge(base, region, 'en', 'US', '');
+			langBuilder._mergeRegion(base, region, 'en', 'US', '');
 			expect(base).to.eql({A:'a',B:{BA:'ba',BB:'bb-override'}});
 		});
 
 		it('should not override with empty objects', function() {
 			var base = {A:'a',B:{BA:'ba',BB:'bb'}};
 			var region = {B:{}};
-			langBuilder._merge(base, region, 'en', 'US', '');
+			langBuilder._mergeRegion(base, region, 'en', 'US', '');
 			expect(base).to.eql({A:'a',B:{BA:'ba',BB:'bb'}});
 		});
 
@@ -199,14 +276,14 @@ describe('langBuilder', function() {
 
 		it('should throw if base language is missing', function() {
 			var input = {
-				languages: {},
+				languages: {en:{}},
 				regions: [
 					{language:'fr',region:'CA'}
 				]
 			};
 			var expectedError = errors.missingBaseLanguage('fr', 'CA');
 			expect(function() {
-				langBuilder._combine(input);
+				langBuilder._combine(input,'en');
 			}).to.throw(expectedError);
 		});
 
@@ -240,7 +317,7 @@ describe('langBuilder', function() {
 					content: require('./output/fr-FR.json')
 				}
 			];
-			expect(langBuilder._combine(input)).to.eql(expectedResult);
+			expect(langBuilder._combine(input, 'fr')).to.eql(expectedResult);
 		});
 
 	});
@@ -302,14 +379,19 @@ describe('langBuilder', function() {
 	describe('builder', function() {
 
 		it('should pipe result to the callback', function(done) {
-			langBuilder('./test/sample','./test/temp', function(err) {
+			var opts = {
+				input: './test/sample',
+				output: './test/temp',
+				fallback: 'fr'
+			};
+			langBuilder(opts, function(err) {
 				expect(err).to.not.be.defined;
 				done();
 			});
 		});
 
 		it('should pipe errors to the callback', function(done) {
-			langBuilder('./test/errors','./test/temp', function(err) {
+			langBuilder(null, function(err) {
 				expect(err).to.be.defined;
 				done();
 			});
