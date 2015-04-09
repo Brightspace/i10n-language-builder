@@ -21,7 +21,7 @@
     "language"
   ],
   "bin": {
-    "i10n-language-builder": "./bin/i10n-language-builder.js"
+    "i10n-language-builder": "./lib/cli.js"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
