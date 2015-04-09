@@ -1,6 +1,6 @@
 {
   "name": "i10n-language-builder",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Library for generating internationalized language files for multiple regions",
   "main": "lib/index.js",
   "scripts": {
