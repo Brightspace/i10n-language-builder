@@ -4,7 +4,6 @@ var chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	errors = require('../lib/errors'),
 	fs = require('q-io/fs'),
-	langBuilder = require('../'),
 	Q = require('q');
 
 chai.use(chaiAsPromised);
@@ -20,6 +19,13 @@ function removeDir(dir) {
 }
 
 describe('langBuilder', function() {
+
+	var langBuilder;
+
+	beforeEach(function() {
+		process.env.NODE_ENV = 'test';
+		langBuilder = require('../');
+	});
 
 	afterEach(function() {
 		return Q.all([removeDir('./test/temp'),removeDir('./test/temp2')]);
