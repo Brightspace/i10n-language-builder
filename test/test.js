@@ -67,6 +67,16 @@ describe('langBuilder', function() {
 			return expect(promise).to.eventually.be.rejectedWith('Unexpected token');
 		});
 
+		it('should use empty object when file is empty', function(done) {
+			langBuilder._readFile('./test/errors', 'empty-FILE.json')
+				.then(function(file) {
+					expect(file).to.not.be.null;
+					expect(file.name).to.equal('empty-FILE');
+					expect(file.content).to.eql({});
+					done();
+				}).fail(done);
+		});
+
 		it('should return filename and parsed content', function(done) {
 			langBuilder._readFile('./test/sample', 'fr-CA.json')
 				.then(function(file) {
@@ -74,9 +84,7 @@ describe('langBuilder', function() {
 					expect(file.name).to.equal('fr-CA');
 					expect(file.content).to.have.property('B','b-CA');
 					done();
-				}).fail(function(err) {
-					done(err);
-				});
+				}).fail(done);
 		});
 
 	});
