@@ -81,12 +81,13 @@ error occurs
 ## Usage from the command line
 
 ```shell
-i10n-language-builder <path> <output>
+i10n-language-builder <path> <output> --fallback=fr
 ```
 
 Where:
 * path: directory containing base and region language files
 * output: directory to place output files
+* fallback: language to use when translations are missing
 
 ## Programmatic usage
 
@@ -95,7 +96,12 @@ You can also use `i10n-language-builder` from your JavaScript application:
 ```javascript
 var langBuilder = require('i10n-language-builder');
 
-langBuilder('inputDir', 'outputDir', function(err) {
+var opts = {
+	input: 'inputDir',
+	output: 'outputDir',
+	fallback: 'fr' // defaults to "en"
+};
+langBuilder(opts, function(err) {
 	// callback when processing is complete
 });
 ```
