@@ -26,11 +26,13 @@ describe('langBuilder', function() {
 	beforeEach(function() {
 		sinon.stub(winston,'info');
 		sinon.stub(winston,'warn');
+		sinon.stub(winston,'error');
 	});
 
 	afterEach(function() {
 		winston.info.restore();
 		winston.warn.restore();
+		winston.error.restore();
 		return Q.all([removeDir('./test/temp'),removeDir('./test/temp2')]);
 	});
 
