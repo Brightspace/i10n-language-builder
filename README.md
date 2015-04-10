@@ -27,8 +27,8 @@ terms together using objects. Also, [Format.js](http://formatjs.io/) and
 ### Base Language Files
 
 You'll start with your base language files. These should be named using the two
-character [primary language subtag (ISO 639-1)](http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes). For example: en.json (English), es.json
-(Spanish), fr.json (French).
+character [primary language subtag (ISO 639-1)](http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes). For example:
+en.json (English), es.json (Spanish), fr.json (French).
 
 Sample English (en.json):
 ```json
@@ -59,7 +59,7 @@ Sample Canadian English (en-CA.json):
 ```
 
 These region-specific files _only_ need to override the terms that differ from
-the base language.
+the base language. They can also be empty.
 
 ### Putting it all together
 

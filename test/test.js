@@ -305,18 +305,23 @@ describe('langBuilder', function() {
 					}
 				]
 			};
-			var expectedResult = [
-				{
-					language: 'fr',
-					region: 'CA',
-					content: require('./output/fr-CA.json')
+			var expectedResult = {
+				languages: {
+					fr: require('./output/fr.json')
 				},
-				{
-					language: 'fr',
-					region: 'FR',
-					content: require('./output/fr-FR.json')
-				}
-			];
+				regions: [
+					{
+						language: 'fr',
+						region: 'CA',
+						content: require('./output/fr-CA.json')
+					},
+					{
+						language: 'fr',
+						region: 'FR',
+						content: require('./output/fr-FR.json')
+					}
+				]
+			};
 			expect(langBuilder._combine(input, 'fr')).to.eql(expectedResult);
 		});
 
@@ -337,7 +342,7 @@ describe('langBuilder', function() {
 		});
 
 		it('should empty directory if it exists', function(done) {
-			langBuilder._writeFiles('./test/temp',[])
+			langBuilder._writeFiles('./test/temp',{languages:{},regions:[]})
 				.then(function() {
 					return fs.list('./test/temp');
 				}).then(function(files) {
@@ -347,7 +352,7 @@ describe('langBuilder', function() {
 		});
 
 		it('should create directory if it not does exist', function(done) {
-			langBuilder._writeFiles('./test/temp2',[])
+			langBuilder._writeFiles('./test/temp2',{languages:{},regions:[]})
 				.then(function() {
 					return fs.isDirectory('./test/temp2');
 				}).then(function(isDirectory) {
@@ -357,16 +362,36 @@ describe('langBuilder', function() {
 		});
 
 		it('should write a region to a file', function(done) {
-			var regions = [
-				{
-					language: 'en',
-					region: 'AU',
-					content: {A:'a'}
-				}
-			];
-			langBuilder._writeFiles('./test/temp',regions)
+			var input = {
+				languages: {},
+				regions: [
+					{
+						language: 'en',
+						region: 'AU',
+						content: {A:'a'}
+					}
+				]
+			};
+			langBuilder._writeFiles('./test/temp',input)
 				.then(function() {
 					return fs.read('./test/temp/en-AU.json');
+				}).then(function(content) {
+					content = JSON.parse(content);
+					expect(content).to.have.property('A','a');
+					done();
+				}).fail(done);
+		});
+
+		it('should write a language to a file', function(done) {
+			var input = {
+				languages: {
+					it: { A: 'a' }
+				},
+				regions: []
+			};
+			langBuilder._writeFiles('./test/temp',input)
+				.then(function() {
+					return fs.read('./test/temp/it.json');
 				}).then(function(content) {
 					content = JSON.parse(content);
 					expect(content).to.have.property('A','a');
