@@ -27,12 +27,14 @@ describe('langBuilder', function() {
 		sinon.stub(winston,'info');
 		sinon.stub(winston,'warn');
 		sinon.stub(winston,'error');
+		sinon.spy(winston,'remove');
 	});
 
 	afterEach(function() {
 		winston.info.restore();
 		winston.warn.restore();
 		winston.error.restore();
+		winston.remove.restore();
 		return Q.all([removeDir('./test/temp'),removeDir('./test/temp2')]);
 	});
 
@@ -420,6 +422,30 @@ describe('langBuilder', function() {
 		it('should pipe errors to the callback', function(done) {
 			langBuilder(null, function(err) {
 				expect(err).to.be.defined;
+				done();
+			});
+		});
+
+		it('should silence winston with silent option', function(done) {
+			var opts = {
+				input: './test/sample',
+				output: './test/temp',
+				silent: true
+			};
+			langBuilder(opts,function(err){
+				expect(winston.remove.calledOnce).to.be.true;
+				done();
+			});
+		});
+
+		it('should pass logLevel on to winston', function(done) {
+			var opts = {
+				input: './test/sample',
+				output: './test/temp',
+				logLevel: 'foo'
+			};
+			langBuilder(opts,function(err){
+				expect(winston.level).to.equal('foo');
 				done();
 			});
 		});
