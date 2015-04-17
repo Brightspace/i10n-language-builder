@@ -1,4 +1,4 @@
-# i10n-language-builder
+# l10n-language-builder
 
 [![NPM version][npm-image]][npm-url]
 [![Build status][ci-image]][ci-url]
@@ -13,7 +13,7 @@ across multiple regions.
 Install from NPM:
 
 ```shell
-npm install i10n-language-builder
+npm install l10n-language-builder
 ```
 
 ## How It Works
@@ -63,7 +63,7 @@ the base language. They can also be empty.
 
 ### Putting it all together
 
-When you point `i10n-language-builder` at a directory containing your base
+When you point `l10n-language-builder` at a directory containing your base
 and regional language files, it will produce a set of files that contains the
 union of each base file with each regional override file. This is most useful
 as a step in your application's build process.
@@ -81,7 +81,7 @@ error occurs
 ## Usage from the command line
 
 ```shell
-i10n-language-builder <path> <output> --fallback=fr
+l10n-language-builder <path> <output> --fallback=fr
 ```
 
 Where:
@@ -91,10 +91,10 @@ Where:
 
 ## Programmatic usage
 
-You can also use `i10n-language-builder` from your JavaScript application:
+You can also use `l10n-language-builder` from your JavaScript application:
 
 ```javascript
-var langBuilder = require('i10n-language-builder');
+var langBuilder = require('l10n-language-builder');
 
 var opts = {
 	input: 'inputDir',
@@ -114,11 +114,11 @@ Contributions are welcome, please submit a pull request!
 This repository is configured with [EditorConfig](http://editorconfig.org) rules and
 contributions should make use of them.
 
-[npm-url]: https://www.npmjs.org/package/i10n-language-builder
-[npm-image]: https://img.shields.io/npm/v/i10n-language-builder.svg
-[ci-url]: https://travis-ci.org/Brightspace/i10n-language-builder
-[ci-image]: https://img.shields.io/travis/Brightspace/i10n-language-builder.svg
-[coverage-url]: https://coveralls.io/r/Brightspace/i10n-language-builder?branch=master
-[coverage-image]: https://img.shields.io/coveralls/Brightspace/i10n-language-builder.svg
-[dependencies-url]: https://david-dm.org/brightspace/i10n-language-builder
-[dependencies-image]: https://img.shields.io/david/Brightspace/i10n-language-builder.svg
+[npm-url]: https://www.npmjs.org/package/l10n-language-builder
+[npm-image]: https://img.shields.io/npm/v/l10n-language-builder.svg
+[ci-url]: https://travis-ci.org/Brightspace/l10n-language-builder
+[ci-image]: https://img.shields.io/travis/Brightspace/l10n-language-builder.svg
+[coverage-url]: https://coveralls.io/r/Brightspace/l10n-language-builder?branch=master
+[coverage-image]: https://img.shields.io/coveralls/Brightspace/l10n-language-builder.svg
+[dependencies-url]: https://david-dm.org/brightspace/l10n-language-builder
+[dependencies-image]: https://img.shields.io/david/Brightspace/l10n-language-builder.svg
