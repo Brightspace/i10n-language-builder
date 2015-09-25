@@ -1,6 +1,6 @@
 {
   "name": "l10n-language-builder",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Library for generating localized language files for multiple regions",
   "main": "lib/index.js",
   "scripts": {
