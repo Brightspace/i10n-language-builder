@@ -3,7 +3,7 @@
 var chai = require('chai'),
 	chaiAsPromised = require('chai-as-promised'),
 	errors = require('../lib/errors'),
-	fs = require('q-io/fs'),
+	fs = require('fs-promise'),
 	langBuilder = require('../'),
 	Q = require('q'),
 	sinon = require('sinon'),
@@ -13,12 +13,7 @@ chai.use(chaiAsPromised);
 var expect = chai.expect;
 
 function removeDir(dir) {
-	return fs.isDirectory(dir)
-		.then(function(isDirectory) {
-			if(isDirectory) {
-				return fs.removeTree(dir);
-			}
-		});
+	return fs.remove(dir);
 }
 
 describe('langBuilder', function() {
@@ -334,9 +329,9 @@ describe('langBuilder', function() {
 	describe('writeFiles', function() {
 
 		beforeEach(function() {
-			return fs.makeDirectory('./test/temp')
+			return fs.mkdirs('./test/temp')
 				.then(function() {
-					return fs.write('./test/temp/file.json','stuff');
+					return fs.writeFile('./test/temp/file.json','stuff');
 				});
 		});
 
@@ -348,7 +343,7 @@ describe('langBuilder', function() {
 		it('should empty directory if it exists', function(done) {
 			langBuilder._writeFiles('./test/temp',{languages:{},regions:[]})
 				.then(function() {
-					return fs.list('./test/temp');
+					return fs.readdir('./test/temp');
 				}).then(function(files) {
 					expect(files).to.have.length(0);
 					done();
@@ -358,9 +353,9 @@ describe('langBuilder', function() {
 		it('should create directory if it not does exist', function(done) {
 			langBuilder._writeFiles('./test/temp2',{languages:{},regions:[]})
 				.then(function() {
-					return fs.isDirectory('./test/temp2');
-				}).then(function(isDirectory) {
-					expect(isDirectory).to.be.true;
+					return fs.stat('./test/temp2');
+				}).then(function(stat) {
+					expect(stat.isDirectory()).to.be.true;
 					done();
 				}).fail(done);
 		});
@@ -378,7 +373,7 @@ describe('langBuilder', function() {
 			};
 			langBuilder._writeFiles('./test/temp',input)
 				.then(function() {
-					return fs.read('./test/temp/en-AU.json');
+					return fs.readFile('./test/temp/en-AU.json');
 				}).then(function(content) {
 					content = JSON.parse(content);
 					expect(content).to.have.property('A','a');
@@ -395,7 +390,7 @@ describe('langBuilder', function() {
 			};
 			langBuilder._writeFiles('./test/temp',input)
 				.then(function() {
-					return fs.read('./test/temp/it.json');
+					return fs.readFile('./test/temp/it.json');
 				}).then(function(content) {
 					content = JSON.parse(content);
 					expect(content).to.have.property('A','a');
