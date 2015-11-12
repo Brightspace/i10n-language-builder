@@ -450,6 +450,23 @@ describe('langBuilder', function() {
 			});
 		});
 
+		it('should write the packaged files to disk', function(done) {
+			var opts = {
+				input: './test/sample',
+				output: './test/temp',
+				fallback: 'fr'
+			};
+			langBuilder(opts, function(err) {
+				expect(err).to.not.be.defined;
+
+				['fr.json', 'fr-CA.json', 'fr-FR.json'].forEach(function(langFile) {
+					expect(require('./temp/' + langFile))
+						.to.deep.equal(require('./output/' + langFile));
+				});
+
+				done();
+			});
+		});
 	});
 
 });
