@@ -1,15 +1,15 @@
 language: node_js
 node_js:
-- '0.12'
-- 4
-- 5
+  - '0.12'
+  - 4
+  - 5
 sudo: false
 after_success:
-- npm run report-coverage
+  - npm run report-coverage
 deploy:
-  provider: npm
-  email: d2ltravisdeploy@d2l.com
-  api_key:
-    secure: INAB5hMXOFOzLa3G5ii1ebRX2YBUq8AenFWaLrnjit8UcT93xM+IarNeQ94epHDfoWBcVXuq+Npx7Rt2dSawLk1GApxyqPohPz6JrWoTFVxO2cRmfeqcQQwXEhxlQtbopxMEazdM7tnZGNA6tBB/l7zDr3wfGDpSL8vfAGSnOPk=
+  provider: script
+  script: echo "npm credentials were revoked on 2018-07-12. We regenerated many
+    credentials, but this repository had no changes in at least 18 months and
+    was skipped. Reconfigure npm deployments. -omsmith"; exit 1
   on:
     tags: true
